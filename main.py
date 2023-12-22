@@ -49,7 +49,7 @@ def parse(torrent_data):
     return torrent_list
 
 def search(term):
-  return parse(run(f'piratebay search {term}'))
+  return remove_keys(parse(run(f'piratebay search {term}')), ["added", "leechers"])
 
 def DictToTable(data):
     console = Console()
@@ -83,12 +83,31 @@ def remove_keys(data_list, keys_to_remove):
     return data_list
 
 # ------------------------ MAIN CODE ------------------------
+# TAKE INPUT
+print('[1]  File')
+print('[2]  Raw Text')
+input_choice = input('[>]  ')
 
-output = search('shawshank')
+print('')
 
-coutput = remove_keys(output, ["added", "leechers"])
-output1 = DictToTable(coutput[:5])
-console.print(output1)
+if input_choice not in ['1', '2']:
+  print('Not a valid choice! Exiting...')
+  exit()
 
+if input_choice == "1":                       # FILE INPUT chosen
+  file_name = input('[>]')                    # Takes file name
 
-#print(json.dumps(output, indent=2))
+  if file_name not in os.listdir():           # When an INVALID file is specified
+    print('Not a valid file! Exiting...')
+    exit()
+
+  with open(file_name, 'r+') as source_file:  # Opening the file
+    movie_source = source_file.readlines()    # Reading the file
+
+  cleaned_movie_source = [item for item in movie_source if item != ""]                    # Removing empty items in movie list
+  cleaned_movie_source = [item.replace("\n", "") for item in cleaned_movie_source]        # Removing newline characters
+
+if input_choice == "2":
+  pass
+
+console.print(DictToTable(search('shawshank')[:5]))
